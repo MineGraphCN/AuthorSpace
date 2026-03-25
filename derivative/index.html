@@ -1,0 +1,181 @@
+<head>
+<title>Derivative - 光影下载</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="icon" href="../favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+    <div class="warning-box">
+        <h3>⚠ 重要声明</h3>
+        <p>近期发现部分抖音博主违规售卖光影设置文件，请注意：</p>
+        <ul>
+            <li>光影配置文件属于社区共享资源，禁止用于任何盈利行为</li>
+            <li>推荐免费光影预设：<a href="https://minegraph.cn/profiles/" target="_blank">MGC中文图形站预设库</a></li>
+        </ul>
+    </div>
+
+    <div class="developer-info">
+        <h2>光影开发者 HaringPro</h2>
+        <p>B站主页：<a href="https://space.bilibili.com/1580785051" target="_blank">https://space.bilibili.com/1580785051</a></p>
+        <p>新光影：<a href="https://github.com/HaringPro/Revelation" target="_blank">https://github.com/HaringPro/Revelation</a></p>
+    </div>
+
+    <table class="comparison-table">
+        <tr>
+            <th style="width:30%">功能特性</th>
+            <th style="width:35%">Derivative</th>
+            <th style="width:35%">Revelation</th>
+        </tr>
+        <tr>
+            <td>优化水平</td>
+            <td>🔚中等</td>
+            <td>🔜优秀</td>
+        </tr>
+        <tr>
+            <td>全局光照</td>
+            <td>📉RSM</td>
+            <td>📈SSPT+改进RSM</td>
+        </tr>
+        <tr>
+            <td>环境光遮蔽</td>
+            <td>⏬SSAO</td>
+            <td>⏫SSAO+GTAO</td>
+        </tr>
+        <tr>
+            <td>代码架构</td>
+            <td>⛔部分SEUS</td>
+            <td>⬆️完全原创</td>
+        </tr>
+        <tr>
+            <td>源代码</td>
+            <td>❎闭源</td>
+            <td>☑️开源</td>
+        </tr>
+        <tr>
+            <td>开发进度</td>
+            <td>❌已停更</td>
+            <td>✅正在更新</td>
+        </tr>
+    </table>
+    <p>* Revelation虽然开发周期较短，但采用全新渲染架构，建议优先尝试新版本</p>
+
+    <button id="downloadBtn">我已阅读声明，确认下载</button>
+    <a id="downloadLink" style="display: none;" href="https://static.minegraph.cn/download/Derivative%20Main%20d24.4.14.zip" download></a>
+    
+    <section class="section">
+        <footer class="footer">
+            <div>Copyright&copy;&nbsp;2025&nbsp;<a href="https://minegraph.cn/" title="MGC中文图形站" target="_blank">MGC中文图形站</a>&nbsp;All&nbsp;Rights&nbsp;Reserved.</div>
+            <div><embed src="svg/police budge.svg" style="width:20px" type="image/svg+xml" pluginspage="http://www.adobe.com/svg/viewer/install/">陕公网安备61019002002803&nbsp;<a href="http://beian.miit.gov.cn/" title="beian" target="_blank">沪ICP备2023036853号-1</a><div/>
+        </footer>
+    </section>
+</body>
+
+<style>
+    .section {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        margin-top: 1rem;
+        display: flex;
+        bottom: 0;
+    }
+    html, body {
+        font-size: clamp(14px, 2.5vw, 18px);
+    }
+    body {
+        margin: 0 30vw;
+    }
+    body a {
+        color: #FEA815;
+        text-decoration-line: none;
+    }
+    body a:hover {
+        color: #FBC420;
+    }
+    html::before {
+        content: "";
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background-image: url('assets/MGC-background.webp');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.101;
+        z-index: -1;
+        pointer-events: none;
+}
+    .footer {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        row-gap: 1.25rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .warning-box {
+        border: 2px solid #ff4444;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 5px;
+        background-color: #ffe6e6;
+    }
+    .comparison-table {
+        font-size: 0.9rem;
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+    .comparison-table td, .comparison-table th {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    .developer-info {
+        margin: 15px 0;
+    }
+    #downloadBtn {
+        padding: 12px 24px;
+        background-color: #FEA815;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8rem;
+    }
+    /* 移动端特殊优化 */
+    @media (hover: none) and (max-width: 1200px) {
+        html,body {
+            font-size: 1.2rem;
+        }
+        .comparison-table {
+        font-size: 2rem;
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        }
+        #downloadBtn {
+            font-size: 1.5rem; /* 按钮放大 */
+            padding: 16px 32px; /* 增大点击区域 */
+        }
+        body {
+        margin: 0 1rem;
+        }
+    }
+</style>
+
+<script>
+    document.getElementById('downloadBtn').addEventListener('click', function() {
+        // 触发下载
+        document.getElementById('downloadLink').click();
+        
+        // 禁用按钮防止重复点击
+        this.disabled = true;
+        this.textContent = '下载开始中...';
+        
+        // 3秒后恢复按钮状态
+        // setTimeout(() => {
+        //     this.disabled = false;
+        //     this.textContent = '我已阅读声明，确认下载';
+        // }, 3000);
+    });
+</script>
