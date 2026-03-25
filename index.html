@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>重定向至 www.minegraph.cn</title>
+    <!-- 
+        说明：此页面用于将访问任意 minegraph 相关域名的请求（HTTP 或 HTTPS）
+        自动重定向到规范域名 www.minegraph.cn，并完整保留原始路径、查询参数及哈希值。
+        例如：http://minegraph.com/abc?foo=bar#section  ->  http://www.minegraph.cn/abc?foo=bar#section
+             https://sub.minegraph.net/docs?id=1      ->  https://www.minegraph.cn/docs?id=1
+    -->
+    <style>
+        /* 极简样式：在重定向瞬间可显示友好提示，避免白屏体验 */
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f7fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .redirect-box {
+            max-width: 520px;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1);
+            padding: 2rem 2rem 2.2rem;
+            transition: all 0.2s ease;
+        }
+        .spinner {
+            width: 44px;
+            height: 44px;
+            margin: 0 auto 1.2rem;
+            border: 3px solid #e2e8f0;
+            border-top-color: #2c7da0;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        h2 {
+            font-size: 1.65rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+            color: #0f172a;
+        }
+        p {
+            color: #334155;
+            margin: 0.5rem 0 1rem;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .url-preview {
+            background: #f1f5f9;
+            border-radius: 20px;
+            padding: 12px 16px;
+            font-family: 'SF Mono', 'Menlo', monospace;
+            font-size: 0.85rem;
+            color: #0f172a;
+            word-break: break-all;
+            margin: 1rem 0 1.2rem;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+        }
+        .manual-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            background: #2c7da0;
+            color: white;
+            text-decoration: none;
+            padding: 10px 24px;
+            border-radius: 60px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .manual-link:hover {
+            background: #1f5e7a;
+        }
+        .note {
+            font-size: 0.75rem;
+            color: #5b6e8c;
+            margin-top: 1.4rem;
+            border-top: 1px solid #eef2f6;
+            padding-top: 1rem;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .spinner { animation: none; border-top-color: #2c7da0; }
+        }
+    </style>
+    <!-- 重定向核心脚本（立即执行，不等待页面渲染） -->
+    <script>
+        (function() {
+            // 获取当前浏览器的完整地址信息
+            var currentProtocol = window.location.protocol;   // "http:" 或 "https:"
+            var currentHost = window.location.hostname;       // 例如 "minegraph.com", "www.minegraph.cn", "sub.minegraph.net"
+            var currentPath = window.location.pathname;       // 例如 "/docs/guide"
+            var currentSearch = window.location.search;       // 例如 "?id=5&name=test"
+            var currentHash = window.location.hash;           // 例如 "#section2"
+
+            // 目标规范域名 (全小写用于比较)
+            var targetDomain = "www.minegraph.cn";
+            var targetDomainLower = targetDomain.toLowerCase();
+
+            // 当前域名转为小写便于比较
+            var currentHostLower = currentHost.toLowerCase();
+
+            // 判断是否为需要重定向的情形：
+            // 1. 当前域名不是目标规范域名 (www.minegraph.cn)
+            // 2. 当前域名包含 "minegraph" (确保只对 minegraph 相关域名生效，避免误跳转无关站点)
+            //    这样既能覆盖 minegraph.com / minegraph.cn / sub.minegraph.com 等各种变体，也不会影响其他网站。
+            var isAlreadyTarget = (currentHostLower === targetDomainLower);
+            var isMinegraphRelated = currentHostLower.includes('minegraph');
+
+            // 符合条件：尚未指向目标域名，并且是 minegraph 域名族 → 执行重定向
+            if (!isAlreadyTarget && isMinegraphRelated) {
+                // 构造新 URL：协议保持不变 + 目标域名 + 原路径 + 原查询参数 + 原哈希
+                // 注意: 使用 location.pathname 确保以 '/' 开头，search 和 hash 已经包含 '?' 和 '#', 若为空则自动忽略。
+                var newUrl = currentProtocol + "//" + targetDomain + currentPath + currentSearch + currentHash;
+                
+                // 额外安全判断：防止因某些边缘情况导致新 URL 与当前 URL 完全一致（理论上域名不同不会相同）
+                // 但极端情况如重定向目标恰巧与原域名相同（已被 isAlreadyTarget 拦截），此处不处理也无循环风险。
+                // 使用 location.replace 模拟 301/302 效果，避免生成多余的历史记录，用户体验更好。
+                // 为了确保重定向生效并避免潜在无限循环，我们只执行一次。
+                // 同时允许控制台输出提示，便于调试（生产环境无影响）。
+                if (typeof console !== 'undefined' && console.log) {
+                    console.log("[重定向] 当前域名 " + currentHost + " 需跳转至规范域名 " + targetDomain + " → " + newUrl);
+                }
+                // 执行重定向
+                window.location.replace(newUrl);
+                // 注意：重定向执行后，下面的代码将不会继续在当前页面执行（页面卸载）
+            } else {
+                // 如果已经是目标域名，或者访问的不是 minegraph 相关域名（极少情况），则不执行跳转
+                // 但为了完整性：如果已经是目标域名但当前页面因为某种原因被展示（例如直接访问 www.minegraph.cn），
+                // 我们保留页面内容并且不执行任何跳转，也可以展示普通内容。
+                // 同时，如果非 minegraph 域名加载了此文件（理论上不该发生），保留静态提示，不做重定向。
+                if (typeof console !== 'undefined' && console.log) {
+                    if (isAlreadyTarget) {
+                        console.log("[重定向] 当前已是目标域名 " + currentHost + "，无需跳转。");
+                    } else if (!isMinegraphRelated) {
+                        console.log("[重定向] 当前域名 " + currentHost + " 不包含 minegraph，不属于重定向范围，保留原页面。");
+                    }
+                }
+                // 什么都不做，正常显示页面（展示友好提示，因为用户可能直接访问了规范域名，或者此HTML被放在了非预期站点）
+            }
+        })();
+    </script>
+    <!-- 注意：由于上面的重定向脚本会立即执行，大多数情况下页面会立刻跳转，用户几乎看不到下面内容。
+         但为了极少数情况（例如重定向被浏览器扩展阻止，或某些环境延迟）以及优雅降级，提供美观的占位信息。 -->
+</head>
+<body>
+    <div class="redirect-box">
+        <div class="spinner"></div>
+        <h2>✨ 正在为您跳转</h2>
+        <p>为了提供更统一的服务体验，访问将自动重定向至<br><strong style="color:#2c7da0;">www.minegraph.cn</strong><br>并保留完整地址路径。</p>
+        <div class="url-preview" id="currentUrlDisplay"></div>
+        <p>如果页面没有自动跳转，请点击下方链接：</p>
+        <a href="#" id="manualRedirectLink" class="manual-link">👉 手动前往 www.minegraph.cn</a>
+        <div class="note">
+            🔄 自动重定向仅针对 minegraph 相关域名 (minegraph.com / .cn / .net 等) 生效，<br>
+            跳转后路径、查询参数及锚点均会保留。
+        </div>
+    </div>
+
+    <script>
+        // 辅助功能：因为上面有可能因为某些原因未执行重定向（已经是目标域名或非minegraph域名）
+        // 为了让手动链接能够正确构造目标地址，我们在此生成并更新手动链接的URL。
+        // 同时展示当前访问地址，提高透明度。
+        (function() {
+            // 获取当前完整地址的各部分（与上方逻辑一致，但此时可能页面未跳转）
+            var protocol = window.location.protocol;
+            var hostname = window.location.hostname;
+            var path = window.location.pathname;
+            var search = window.location.search;
+            var hash = window.location.hash;
+            var targetDomain = "www.minegraph.cn";
+            
+            // 展示当前访问的 URL（便于用户了解原始地址）
+            var currentFullUrl = protocol + "//" + hostname + path + search + hash;
+            var urlDisplayElem = document.getElementById('currentUrlDisplay');
+            if (urlDisplayElem) {
+                urlDisplayElem.innerText = currentFullUrl;
+            }
+            
+            // 构造手动跳转的目标地址 (保留协议、路径、参数等)
+            var manualTarget = protocol + "//" + targetDomain + path + search + hash;
+            var manualLink = document.getElementById('manualRedirectLink');
+            if (manualLink) {
+                manualLink.href = manualTarget;
+                // 可选: 增加点击埋点（不影响功能）
+                manualLink.addEventListener('click', function(e) {
+                    // 允许默认跳转行为，但无需额外操作
+                    if (typeof console !== 'undefined') {
+                        console.log("[手动跳转] 用户点击链接至 " + manualTarget);
+                    }
+                });
+            }
+            
+            // 附加小优化：如果当前已经是目标域名，修改提示文案更友好
+            var currentHostLower = hostname.toLowerCase();
+            if (currentHostLower === targetDomain) {
+                var titleElem = document.querySelector('h2');
+                if (titleElem) titleElem.innerHTML = '✅ 欢迎访问规范域名';
+                var descElem = document.querySelector('.redirect-box p');
+                if (descElem) {
+                    descElem.innerHTML = '您当前已经访问 <strong style="color:#2c7da0;">www.minegraph.cn</strong><br>无需重定向。';
+                }
+                var spinner = document.querySelector('.spinner');
+                if (spinner) spinner.style.display = 'none';
+                var manualLinkContainer = document.querySelector('.manual-link');
+                if (manualLinkContainer) manualLinkContainer.textContent = '🏠 返回首页';
+                // 让手动链接指向根路径（可选友好行为）
+                if (manualLink) manualLink.href = protocol + "//" + targetDomain + "/";
+            }
+            
+            // 如果域名包含 minegraph 但不是目标域名，但 JS 重定向未触发（极端情况: location.replace 被策略阻止）
+            // 我们已经在 head 脚本里调用 replace，此处不需要额外操作，但手动链接可以保证用户能跳转。
+            // 此外，如果重定向已经执行，页面已卸载，下面代码几乎不会运行。所以无害。
+        })();
+    </script>
+</body>
+</html>
