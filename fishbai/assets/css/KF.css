@@ -1,0 +1,20 @@
+.IMG {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.IMGlogo {
+  max-width: 14vw;
+  min-width: 80px;
+  margin: 0 auto;
+}
+.imgbil {
+  padding: 10px;
+  background: #8a8a8a;
+  border-radius: 20%;
+}
+.imgs {
+  object-fit: cover;
+  height: 100%;
+}
